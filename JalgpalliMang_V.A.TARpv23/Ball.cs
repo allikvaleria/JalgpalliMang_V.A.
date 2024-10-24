@@ -1,20 +1,21 @@
 ﻿using System;
-using JalgpalliMang_V.A.TARpv23;
 
 namespace JalgpalliMang_V.A.TARpv23
 {
-    public class Ball
+class Ball
     {
-        public double X { get; set; } // Добавили публичный сеттер
-        public double Y { get; set; } // Добавили публичный сеттер
-
-        private double _vx, _vy;
+        private double _x;
+        private double _y;
         private Game _game;
 
-        public Ball(double x, double y)
+        public (double, double) Position => (_x, _y); // Свойство для получения позиции мяча
+        private double _vx, _vy; // Скорость мяча
+
+        public Ball(double x, double y, Game game)
         {
-            X = x;
-            Y = y;
+            _x = x;
+            _y = y;
+            _game = game;
         }
 
         public void SetSpeed(double vx, double vy)
@@ -23,55 +24,33 @@ namespace JalgpalliMang_V.A.TARpv23
             _vy = vy;
         }
 
-        public void MoveTowards(Player player)
+        public void Move()
         {
-            // Двигаем мяч к игроку
-            if (X < player.X)
-                X += 0.5; // Двигаем вправо
-            else if (X > player.X)
-                X -= 0.5; // Двигаем влево
+            double newX = _x + _vx;
+            double newY = _y + _vy;
 
-            if (Y < player.Y)
-                Y += 0.5; // Двигаем вниз
-            else if (Y > player.Y)
-                Y -= 0.5; // Двигаем вверх
-        }
+            // Проверка границ стадиона
+            if (newX < 0 || newX >= _game.Stadium.Width)
+            {
+                _vx = -_vx;
+                newX = _x + _vx;
+            }
 
-        public void MoveToGoal(Goal goal)
-        {
-            // Двигаем мяч к воротам
-            if (X < goal.X)
-                X += 0.5; // Двигаем вправо
-            else if (X > goal.X)
-                X -= 0.5; // Двигаем влево
+            if (newY < 0 || newY >= _game.Stadium.Height)
+            {
+                _vy = -_vy;
+                newY = _y + _vy;
+            }
+
+            _x = newX;
+            _y = newY;
         }
 
         public void Draw()
         {
-            Console.SetCursorPosition((int)X, (int)Y);
-            Console.Write("O"); // Отображение мяча
-        }
-
-        public void MoveTowardsGoal(Team team)
-        {
-            // Здесь мы просто движем мяч вниз к воротам
-            // В зависимости от команды, перемещение может отличаться
-            if (team.Name == "Гостевая команда")
-            {
-                // Если это гостевая команда, двигаем мяч к правым воротам
-                X += 1; // Пример: движение вправо (можно изменить по необходимости)
-                Y = Console.WindowHeight / 2; // Пример: позиция Y для ворот
-            }
-            else
-            {
-                // Если это домашняя команда, двигаем мяч к левым воротам
-                X -= 1; // Пример: движение влево (можно изменить по необходимости)
-                Y = Console.WindowHeight / 2; // Пример: позиция Y для ворот
-            }
-
-            // Ограничиваем движение мяча, чтобы он не выходил за границы поля
-            if (X < 0) X = 0;
-            if (X >= Console.WindowWidth) X = Console.WindowWidth - 1;
+            Console.SetCursorPosition((int)_x, (int)_y);
+            Console.ForegroundColor = ConsoleColor.Yellow; // Цвет мяча
+            Console.Write('O'); // Символ мяча
         }
     }
 }
