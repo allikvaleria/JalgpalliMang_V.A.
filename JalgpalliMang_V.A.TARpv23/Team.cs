@@ -1,91 +1,73 @@
 ﻿using System;
-using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Collections.Generic;
-using JalgpalliMang_V.A.TARpv23;
+using System.Linq;
 
 namespace JalgpalliMang_V.A.TARpv23
 {
-    public class Team
+    class Team
     {
-        public List<Player> Players { get; } = new List<Player>();
-        public string Name { get; private set; }
-        public Game Game { get; set; }
-
+        public string Name { get; }
+        public List<Player> Players { get; private set; }
+        public Game Game { get; private set; }
 
         public Team(string name)
         {
             Name = name;
+            Players = new List<Player>();
         }
 
-        public void StartGame(int width, int height) // Принимаем параметры ширины и высоты
+        public void AddPlayer(Player player)
         {
-            Random rnd = new Random();
-            foreach (var player in Players)
-            {
-                player.SetPosition(
-                    rnd.NextDouble() * width,
-                    rnd.NextDouble() * height
-                );
-            }
+            player.Team = this; // Устанавливаем команду игрока
+            Players.Add(player);
         }
 
-        
+        public void AssignGame(Game game)
+        {
+            Game = game; // Устанавливаем игру для команды
+        }
 
         public (double, double) GetBallPosition()
         {
-            if (Game == null)
-            {
-                throw new InvalidOperationException("Игра не инициализирована для команды.");
-            }
-            return Game.GetBallPositionForTeam(this);
-        }
-
-        public void SetBallSpeed(double vx, double vy)
-        {
-            Game.SetBallSpeedForTeam(this, vx, vy);
+            // Возвращаем позицию мяча
+            return Game.Ball.Position; // Предполагается, что у мяча есть свойство Position
         }
 
         public Player GetClosestPlayerToBall()
         {
-            Player closestPlayer = Players[0];
-            double bestDistance = Double.MaxValue;
+            var ballPosition = GetBallPosition();
+            return Players.OrderBy(p => p.GetDistanceToBall()).FirstOrDefault();
+        }
+
+        public void SetBallSpeed(double vx, double vy)
+        {
+            Game.Ball.SetSpeed(vx, vy); // Устанавливаем скорость мяча
+        }
+
+        public void StartGame(double startX, double startY)
+        {
+            Random random = new Random();
             foreach (var player in Players)
             {
-                var distance = player.GetDistanceToBall();
-                if (distance < bestDistance)
-                {
-                    closestPlayer = player;
-                    bestDistance = distance;
-                }
+                double randomX = random.NextDouble() * Game.Stadium.Width; // Случайная позиция по X
+                double randomY = random.NextDouble() * Game.Stadium.Height; // Случайная позиция по Y
+                player.SetPosition(randomX, randomY); // Устанавливаем случайную позицию игрока
             }
-
-            return closestPlayer;
         }
 
         public void Move()
         {
-            GetClosestPlayerToBall().MoveTowardsBall();
-            Players.ForEach(player => player.Move());
+            foreach (var player in Players)
+            {
+                player.Move();
+            }
         }
 
-        public void DrawPlayers()
+        public void Draw()
         {
             foreach (var player in Players)
             {
-                if (Name == "Домашняя команда")
-                {
-                    Console.ForegroundColor = ConsoleColor.Blue; // Синий цвет для домашней команды
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red; // Красный цвет для гостевой команды
-                }
-
-                player.Draw(); // Отрисовываем игрока
-
-                Console.ResetColor(); // Сбрасываем цвет после отрисовки
+                player.Draw();
             }
         }
     }
