@@ -2,27 +2,24 @@
 
 namespace JalgpalliMang_V.A.TARpv23
 {
-    public class Point
+    class Point
     {
-        public int HomeTeamScore { get; private set; }
-        public int AwayTeamScore { get; private set; }
+        public int x { get; }
+        public int y { get; }
+        public char symbol { get; }
 
-        public Point()
+        public Point(int _x, int _y, char _symbol)
         {
-            HomeTeamScore = 0;
-            AwayTeamScore = 0;
+            x = _x;
+            y = _y;
+            symbol = _symbol;
         }
-
-        public void HomeTeamScored()
+        //Meetod ekraanile punktide kuvamiseks
+        //Метод для отображения точек на экране
+        public void Draw()
         {
-            HomeTeamScore++;
-            Console.WriteLine("Гол! Домашняя команда забила. Счет: " + HomeTeamScore + " - " + AwayTeamScore);
-        }
-
-        public void AwayTeamScored()
-        {
-            AwayTeamScore++;
-            Console.WriteLine("Гол! Гостевая команда забила. Счет: " + HomeTeamScore + " - " + AwayTeamScore);
+            Console.SetCursorPosition(x, y);
+            Console.Write(symbol);
         }
     }
 }
